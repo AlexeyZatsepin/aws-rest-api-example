@@ -1,0 +1,10 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - mvn clean install
+artifacts:
+  files:
+    - 'Dockerfile'
+    - 'target/tui-test-task-api-0.0.1-SNAPSHOT.jar'
