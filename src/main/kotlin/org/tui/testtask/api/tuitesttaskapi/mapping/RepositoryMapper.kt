@@ -1,7 +1,9 @@
 package org.tui.testtask.api.tuitesttaskapi.mapping
 
-import org.mapstruct.*
-import org.springframework.stereotype.Component
+import org.mapstruct.Builder
+import org.mapstruct.Mapper
+import org.mapstruct.Mapping
+import org.mapstruct.ReportingPolicy
 import org.tui.testtask.api.tuitesttaskapi.model.Branch
 import org.tui.testtask.api.tuitesttaskapi.model.Repository
 import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse

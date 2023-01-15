@@ -4,15 +4,41 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
 import org.tui.testtask.api.tuitesttaskapi.model.dto.RepositoryResponse
 
+private const val DEFAULT_PAGE_SIZE = 30
+private const val DEFAULT_PAGE_NUM = 1
+
 class GithubClient(private val webClient: WebClient) {
 
-    fun getAllRepositories(org: String) = webClient.get()
-            .uri("/orgs/{org}/repos", org)
-            .retrieve()
-            .bodyToFlux(RepositoryResponse::class.java)
+    fun getAllRepositories(
+        username: String, page: Int = DEFAULT_PAGE_NUM,
+        perPage: Int = DEFAULT_PAGE_SIZE,
+        direction: String = "asc"
+    ) = webClient.get()
+        .uri { builder ->
+            builder
+                .path("/users/{username}/repos")
+                .queryParam("page", page)
+                .queryParam("per_page", perPage)
+                .queryParam("direction", direction)
+                .build(username)
+        }
+        .retrieve()
+        .bodyToFlux(RepositoryResponse::class.java)
 
-    fun getAllBranches(org: String, repo: String) = webClient.get()
-        .uri("/repos/{org}/{repo}/branches", org, repo)
+
+    fun getAllBranches(
+        username: String,
+        repo: String,
+        page: Int = DEFAULT_PAGE_NUM,
+        perPage: Int = DEFAULT_PAGE_SIZE
+    ) = webClient.get()
+        .uri { builder ->
+            builder
+                .path("/repos/{username}/{repo}/branches")
+                .queryParam("page", page)
+                .queryParam("per_page", perPage)
+                .build(username, repo)
+        }
         .retrieve()
         .bodyToFlux(BranchesResponse::class.java)
 }

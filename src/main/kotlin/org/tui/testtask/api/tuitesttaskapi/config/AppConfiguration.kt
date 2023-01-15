@@ -1,6 +1,5 @@
 package org.tui.testtask.api.tuitesttaskapi.config
 
-import org.mapstruct.factory.Mappers
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -12,6 +11,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import org.tui.testtask.api.tuitesttaskapi.client.GithubClient
 import org.tui.testtask.api.tuitesttaskapi.mapping.RepositoryMapper
+import org.tui.testtask.api.tuitesttaskapi.service.GithubRetrieveService
 import reactor.core.publisher.Mono
 import java.util.*
 import java.util.function.Consumer
@@ -28,7 +28,10 @@ class AppConfiguration {
         .baseUrl("https://$uri")
         .filter(logRequest())
         .defaultHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_VND_GITHUB_JSON)
-        .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer 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")
+        .defaultHeader(
+            HttpHeaders.AUTHORIZATION,
+            "Bearer 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"
+        )
         .build()
 
     @Bean
@@ -36,7 +39,9 @@ class AppConfiguration {
     fun githubClient(webClient: WebClient) = GithubClient(webClient)
 
     @Bean
-    fun repositoryMapper(): RepositoryMapper = Mappers.getMapper(RepositoryMapper::class.java)
+    @ConditionalOnBean(name = ["githubWebClient"])
+    fun githubRetrieveService(githubClient: GithubClient, repositoryMapper: RepositoryMapper) =
+        GithubRetrieveService(githubClient, repositoryMapper)
 
     private fun logRequest(): ExchangeFilterFunction {
         return ExchangeFilterFunction.ofRequestProcessor { clientRequest: ClientRequest ->

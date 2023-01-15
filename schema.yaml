@@ -1,0 +1,99 @@
+---
+openapi: 3.0.1
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  "/v1/repos/{username}":
+    get:
+      tags:
+        - vcs-repo-controller
+      summary: Get list of repositories for provided username in VCS
+      description: Returns 200 if successful
+      operationId: getAllRepositories
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Zero-based page index (0..N)
+          required: false
+          schema:
+            minimum: 0
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: The size of the page to be returned
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            default: 20
+        - name: sort
+          in: query
+          description: 'Sorting criteria in the format: property,(asc|desc). Default
+          sort order is ascending. Multiple sort criteria are supported.'
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Repository"
+        '404':
+          description: Provided user does not exist
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Repository"
+        '406':
+          description: Not Acceptable
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Repository"
+components:
+  schemas:
+    Branch:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of branch
+          example: main
+        sha:
+          type: string
+          description: SHA of last commit in this branch
+          example: '12345'
+      description: Model for a branch of VCS repository
+    Repository:
+      type: object
+      properties:
+        name:
+          type: string
+          description: repository name
+          example: test-repo
+        owner:
+          type: string
+          description: login of VCS repository owner
+          example: OZatsepin
+        branches:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Branch"
+      description: Model for a VCS repository
