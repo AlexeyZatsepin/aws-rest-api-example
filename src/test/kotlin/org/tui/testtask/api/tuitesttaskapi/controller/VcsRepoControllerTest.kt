@@ -28,7 +28,7 @@ class VcsRepoControllerTest {
 
         client = WebTestClient.bindToController(controller).build()
 
-        Mockito.`when`(service.retrieveRepositories("gyroflow"))
+        Mockito.`when`(service.retrieveRepositories("gyroflow", 1, 30))
             .thenReturn(
                 TestPublisher.createCold<Repository>()
                     .emit(

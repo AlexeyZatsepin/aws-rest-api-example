@@ -93,7 +93,7 @@ class GithubRetrieveServiceTest {
     @Test
     fun `should retrieve github repositories for organization`() {
         StepVerifier
-            .create(service.retrieveRepositories(ORGANIZATION))
+            .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
             .expectSubscription()
             .assertNext { println(it) }
             .assertNext { println(it) }
