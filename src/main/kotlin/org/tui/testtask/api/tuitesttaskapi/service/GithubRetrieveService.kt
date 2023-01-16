@@ -11,6 +11,7 @@ class GithubRetrieveService(
 
     override fun retrieveRepositories(username: String, page: Int, size: Int) =
         githubClient.getAllRepositories(username, page, size)
+            .log()
             .parallel()
             .runOn(Schedulers.boundedElastic())
             .filter { !it.fork }

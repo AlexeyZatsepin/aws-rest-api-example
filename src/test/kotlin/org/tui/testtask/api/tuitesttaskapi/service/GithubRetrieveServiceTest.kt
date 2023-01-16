@@ -7,7 +7,9 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.tui.testtask.api.tuitesttaskapi.client.GithubClient
 import org.tui.testtask.api.tuitesttaskapi.error.GithubResourceNotFoundException
+import org.tui.testtask.api.tuitesttaskapi.error.ServiceNotAvailableException
 import org.tui.testtask.api.tuitesttaskapi.mapping.RepositoryMapper
+import org.tui.testtask.api.tuitesttaskapi.model.Branch
 import org.tui.testtask.api.tuitesttaskapi.model.Repository
 import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
 import org.tui.testtask.api.tuitesttaskapi.model.dto.Commit
@@ -72,7 +74,7 @@ class GithubRetrieveServiceTest {
                 .flux())
 
         `when`(mapper.map(repositoryResponse1, listOf(branchesResponse1, branchesResponse2)))
-            .thenReturn(Repository(name = "test-repo1"))
+            .thenReturn(Repository(name = "test-repo1", owner = "username", branches = listOf(Branch(), Branch())))
 
         StepVerifier
             .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
@@ -108,15 +110,26 @@ class GithubRetrieveServiceTest {
     }
 
     @Test
-    fun `should handle not found exception from API`() {
+    fun `should not handle not found exception from API`() {
         `when`(githubClient.getAllRepositories(ORGANIZATION))
-            .thenThrow(GithubResourceNotFoundException(""))
-
+            .thenReturn(TestPublisher.createCold<RepositoryResponse>()
+                .error(GithubResourceNotFoundException("")).flux())
 
         StepVerifier
             .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
-            .expectSubscription()
-            .expectComplete()
+            .expectError()
+            .verify()
+    }
+
+    @Test
+    fun `should not handle server exception from API`() {
+        `when`(githubClient.getAllRepositories(ORGANIZATION))
+            .thenReturn(TestPublisher.createCold<RepositoryResponse>()
+                .error(ServiceNotAvailableException()).flux())
+
+        StepVerifier
+            .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
+            .expectError()
             .verify()
     }
 }

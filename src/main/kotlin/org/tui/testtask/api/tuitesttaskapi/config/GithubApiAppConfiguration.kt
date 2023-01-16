@@ -12,25 +12,23 @@ import org.tui.testtask.api.tuitesttaskapi.service.GithubRetrieveService
 import java.util.*
 
 
-private const val APPLICATION_VND_GITHUB_JSON = "application/vnd.github+json"
-
 @Configuration
-class AppConfiguration {
-    @ConditionalOnProperty(name = ["vcs.type"], havingValue = "github")
-    class GithubAppConfiguration {
-        @Bean
-        fun githubWebClient(@Value("\${vcs.url}") uri: String, @Value("\${vcs.access_token}") accessToken: String) = WebClient.builder()
+@ConditionalOnProperty(name = ["vcs.type"], havingValue = "github")
+class GithubApiAppConfiguration {
+    @Bean
+    fun githubWebClient(@Value("\${vcs.url}") uri: String, @Value("\${vcs.access_token}") accessToken: String) =
+        WebClient.builder()
             .baseUrl("https://$uri")
             .defaultHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_VND_GITHUB_JSON)
             .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
             .build()
 
-        @Bean
-        fun githubClient(webClient: WebClient) = GithubClient(webClient)
+    @Bean
+    fun githubClient(webClient: WebClient) = GithubClient(webClient)
 
-        @Bean
-        fun githubRetrieveService(githubClient: GithubClient, repositoryMapper: RepositoryMapper) =
-            GithubRetrieveService(githubClient, repositoryMapper)
-    }
-
+    @Bean
+    fun githubRetrieveService(githubClient: GithubClient, repositoryMapper: RepositoryMapper) =
+        GithubRetrieveService(githubClient, repositoryMapper)
 }
+
+private const val APPLICATION_VND_GITHUB_JSON = "application/vnd.github+json"
