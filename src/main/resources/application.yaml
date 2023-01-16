@@ -8,18 +8,6 @@ logging:
   level:
     root: INFO
 
-springdoc:
-  swagger-ui:
-    path: /openapi
-    operationsSorter: method
-
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_GXwTNpzIQ
-
 management:
   endpoints:
     web:
