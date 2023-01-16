@@ -1,6 +1,7 @@
 package org.tui.testtask.api.tuitesttaskapi.security
 
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -8,6 +9,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 
 
 @EnableWebFluxSecurity
+@Configuration
 class WebSecurityConfig {
 
     @Bean
@@ -17,8 +19,14 @@ class WebSecurityConfig {
         http.cors().and().csrf().disable()
             .authorizeExchange()
             .pathMatchers(HttpMethod.GET,"/actuator/**").permitAll()
-            .pathMatchers("/openapi", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs", "/v2/api-docs").permitAll()
-            .pathMatchers("/v1/**").authenticated()
+            .pathMatchers(
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/swagger-resources/**",
+                "/v3/api-docs/**",
+                "/webjars/**"
+            ).permitAll()
+            .anyExchange().authenticated()
             .and()
             .oauth2ResourceServer()
             .jwt()
