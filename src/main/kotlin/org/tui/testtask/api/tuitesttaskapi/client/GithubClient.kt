@@ -1,8 +1,12 @@
 package org.tui.testtask.api.tuitesttaskapi.client
 
+import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
+import org.tui.testtask.api.tuitesttaskapi.error.GithubResourceNotFoundException
+import org.tui.testtask.api.tuitesttaskapi.error.ServiceNotAvailableException
 import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
 import org.tui.testtask.api.tuitesttaskapi.model.dto.RepositoryResponse
+import reactor.core.publisher.Mono
 
 private const val DEFAULT_PAGE_SIZE = 30
 private const val DEFAULT_PAGE_NUM = 1
@@ -23,6 +27,12 @@ class GithubClient(private val webClient: WebClient) {
                 .build(username)
         }
         .retrieve()
+        .onStatus(
+            { httpStatus -> HttpStatus.NOT_FOUND == httpStatus },
+            { Mono.error(GithubResourceNotFoundException(message = "Repository for $username not found.")) })
+        .onStatus(
+            { httpStatus -> httpStatus.is5xxServerError },
+            { Mono.error(ServiceNotAvailableException()) })
         .bodyToFlux(RepositoryResponse::class.java)
 
 
@@ -40,5 +50,11 @@ class GithubClient(private val webClient: WebClient) {
                 .build(username, repo)
         }
         .retrieve()
+        .onStatus(
+            { httpStatus -> HttpStatus.NOT_FOUND == httpStatus },
+            { Mono.error(GithubResourceNotFoundException(message = "Branches for $username/$repo not found.")) })
+        .onStatus(
+            { httpStatus -> httpStatus.is5xxServerError },
+            { Mono.error(ServiceNotAvailableException()) })
         .bodyToFlux(BranchesResponse::class.java)
 }
