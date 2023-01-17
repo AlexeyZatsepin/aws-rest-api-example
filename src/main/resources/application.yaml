@@ -5,7 +5,10 @@ vcs:
   pagination:
     per_page: 100
 
-spring:
+#spring:
+#  config:
+#    import: /dev/tui-test-task-api
+
   security:
     oauth2:
       resourceserver:
