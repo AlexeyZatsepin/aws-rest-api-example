@@ -28,7 +28,9 @@ class WebSecurityConfig {
                 "/v3/api-docs/**",
                 "/webjars/**"
             ).permitAll()
-            .anyExchange().authenticated()
+            .anyExchange()
+            .permitAll()
+//            .authenticated()
             .and()
             .oauth2ResourceServer()
             .jwt()

@@ -1,0 +1,133 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "description": "Your first API with Amazon API Gateway. This is a sample API that integrates via HTTP with our demo Pet Store endpoints",
+    "title": "PetStore",
+    "version": "1"
+  },
+  "paths": {
+    "/v1/repos/{username}": {
+      "get": {
+        "tags": [
+          "vcs-repo-controller"
+        ],
+        "summary": "Get list of repositories for provided username in VCS",
+        "description": "Returns 200 if successful",
+        "operationId": "getAllRepositories",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "406": {
+            "description": "Not Acceptable",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Repository"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Provided user does not exist",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Repository"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Repository"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Branch": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "name of branch",
+            "example": "main"
+          },
+          "sha": {
+            "type": "string",
+            "description": "SHA of last commit in this branch",
+            "example": "12345"
+          }
+        },
+        "description": "Model for a branch of VCS repository"
+      },
+      "Repository": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "repository name",
+            "example": "test-repo"
+          },
+          "owner": {
+            "type": "string",
+            "description": "login of VCS repository owner",
+            "example": "OZatsepin"
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Branch"
+            }
+          }
+        },
+        "description": "Model for a VCS repository"
+      }
+    }
+  }
+}
