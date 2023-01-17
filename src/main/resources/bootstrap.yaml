@@ -1,11 +1,11 @@
-#aws:
-#  secretsmanager:
-#    name: tui-test-task-api
-#    prefix: /dev
-#cloud:
-#  aws:
-#    region:
-#      static: ap-southeast-1
 aws:
   secretsmanager:
-    enabled: false
+    name: tui-test-task-api
+    prefix: dev
+cloud:
+  aws:
+    region:
+      static: ap-southeast-1
+#aws:
+#  secretsmanager:
+#    enabled: false
