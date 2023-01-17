@@ -13,6 +13,7 @@ class CustomErrorAttributes : DefaultErrorAttributes() {
         errorAttributes.remove("requestId")
         errorAttributes.remove("path")
         errorAttributes.remove("timestamp")
+        errorAttributes.remove("error")
         return errorAttributes
     }
 }
