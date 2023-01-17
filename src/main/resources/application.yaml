@@ -1,19 +1,8 @@
 vcs:
   type: github
-  access_token: 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
   url: api.github.com
   pagination:
     per_page: 100
-
-#spring:
-#  config:
-#    import: /dev/tui-test-task-api
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_GXwTNpzIQ
 
 logging:
   level:
