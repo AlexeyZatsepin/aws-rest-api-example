@@ -2,8 +2,6 @@ vcs:
   type: github
   url: api.github.com
   access_token: sometoken
-  pagination:
-    per_page: 100
 
 security:
   use-cognito-token: false

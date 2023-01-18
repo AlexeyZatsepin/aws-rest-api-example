@@ -1,8 +1,6 @@
 vcs:
   type: github
   url: api.github.com
-  pagination:
-    per_page: 100
 
 security:
   use-cognito-token: false
