@@ -3,8 +3,10 @@ package org.tui.testtask.api.tuitesttaskapi.service
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.Mockito.*
+import org.mockito.junit.jupiter.MockitoExtension
 import org.tui.testtask.api.tuitesttaskapi.client.GithubClient
 import org.tui.testtask.api.tuitesttaskapi.error.GithubResourceNotFoundException
 import org.tui.testtask.api.tuitesttaskapi.error.ServiceNotAvailableException
@@ -21,19 +23,21 @@ import reactor.test.publisher.TestPublisher
 
 private const val ORGANIZATION = "test"
 
+@ExtendWith(MockitoExtension::class)
 class GithubRetrieveServiceTest {
-
+    @Mock
     private lateinit var githubClient: GithubClient
+    @Mock
     private lateinit var mapper: RepositoryMapper
+    @Mock
+    private lateinit var dataGenerator: PageDataGeneratorService<Pair<String,String>,BranchesResponse>
+
     private lateinit var service: GithubRetrieveService
 
 
     @BeforeEach
     fun init() {
-        githubClient = mock(GithubClient::class.java)
-        mapper = mock(RepositoryMapper::class.java)
-
-        service = GithubRetrieveService(githubClient, mapper)
+        service = GithubRetrieveService(githubClient, mapper, dataGenerator)
     }
 
     @Test
@@ -62,12 +66,7 @@ class GithubRetrieveServiceTest {
                 .emit(repositoryResponse1)
                 .flux())
 
-        `when`(githubClient.getAllBranches(ORGANIZATION, "test-repo1"))
-            .thenReturn(TestPublisher.createCold<BranchesResponse>()
-                .emit(branchesResponse1)
-                .emit(branchesResponse2)
-                .flux())
-        `when`(githubClient.getAllBranches(ORGANIZATION, "test-repo1"))
+        `when`(dataGenerator.generateDataFlux(any(), any()))
             .thenReturn(TestPublisher.createCold<BranchesResponse>()
                 .emit(branchesResponse1)
                 .emit(branchesResponse2)
@@ -131,5 +130,9 @@ class GithubRetrieveServiceTest {
             .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
             .expectError()
             .verify()
+    }
+
+    private fun <T> any() : T {
+        return org.mockito.ArgumentMatchers.any()
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.tui.testtask.api.tuitesttaskapi.client.GithubClient
 import org.tui.testtask.api.tuitesttaskapi.mapping.RepositoryMapper
 import org.tui.testtask.api.tuitesttaskapi.service.GithubRetrieveService
+import org.tui.testtask.api.tuitesttaskapi.service.PageDataGeneratorService
 import java.util.*
 
 
@@ -28,7 +29,7 @@ class GithubApiAppConfiguration {
 
     @Bean
     fun githubRetrieveService(githubClient: GithubClient, repositoryMapper: RepositoryMapper) =
-        GithubRetrieveService(githubClient, repositoryMapper)
+        GithubRetrieveService(githubClient, repositoryMapper, PageDataGeneratorService())
 }
 
 private const val APPLICATION_VND_GITHUB_JSON = "application/vnd.github+json"

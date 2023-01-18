@@ -8,7 +8,12 @@ X-GitHub-Api-Version: 2022-11-28
 ### correct request
 GET http://localhost:8080/v1/repos/AlexeyZatsepin?page=0&size=20
 Accept: application/json
-Authorization: Bearer {{cognito_token}}
+#Authorization: Bearer {{cognito_token}}
+
+### correct request2
+GET http://localhost:8080/v1/repos/uaArsen?page=0&size=20
+Accept: application/json
+#Authorization: Bearer {{cognito_token}}
 
 
 ### wrong header
