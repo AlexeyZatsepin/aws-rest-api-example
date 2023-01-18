@@ -1,0 +1,30 @@
+### correct request
+GET http://{{service_link}}:8080/v1/repos/{{username}}
+Accept: application/json
+Authorization: Bearer {{cognito_token}}
+
+### correct request page1
+GET http://{{service_link}}:8080/v1/repos/{{username}}?page=1&size=5
+Accept: application/json
+Authorization: Bearer {{cognito_token}}
+
+### correct request page2
+GET http://{{service_link}}:8080/v1/repos/{{username}}?page=2&size=5
+Accept: application/json
+Authorization: Bearer {{cognito_token}}
+
+### Actuator
+GET http://{{service_link}}:8080/actuator/health
+
+
+### wrong header
+GET http://{{service_link}}:8080/v1/repos/{{username}}?page=0&size=20
+Accept: application/xml
+Authorization: Bearer {{cognito_token}}
+
+
+### not existing repository
+GET http://{{service_link}}:8080/v1/repos/lala110203?page=0&size=20
+Accept: application/json
+Authorization: Bearer {{cognito_token}}
+

@@ -1,0 +1,18 @@
+### correct request to API Gateway
+GET http://{{service_link}}:8080/dev/v1/repos/{{username}}?page=0&size=20
+Accept: application/json
+X-API-Key: {{x-api-key}}
+
+
+### wrong header
+GET http://{{service_link}}:8080/dev/v1/repos/{{username}}?page=0&size=20
+Accept: application/xml
+X-API-Key: {{x-api-key}}
+
+
+### not existing repository
+GET http://{{service_link}}:8080/dev/v1/repos/lala110203?page=0&size=20
+Accept: application/json
+X-API-Key: {{x-api-key}}
+
+

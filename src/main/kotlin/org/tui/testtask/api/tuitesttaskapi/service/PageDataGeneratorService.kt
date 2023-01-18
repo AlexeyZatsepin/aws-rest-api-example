@@ -6,6 +6,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.BiFunction
 
 
+/**
+ * Generates one flux from pageable content to read all the pages
+ */
 class PageDataGeneratorService<D,T> {
 
     fun generateDataFlux(
