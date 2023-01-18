@@ -4,10 +4,12 @@ vcs:
   pagination:
     per_page: 100
 
+security:
+  use-cognito-token: false
+
 logging:
   level:
     root: INFO
-    org.springframework.cloud.aws.secretsmanager: DEBUG
 
 management:
   endpoints:

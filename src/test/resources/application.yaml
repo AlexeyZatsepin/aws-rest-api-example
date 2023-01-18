@@ -5,6 +5,9 @@ vcs:
   pagination:
     per_page: 100
 
+security:
+  use-cognito-token: false
+
 logging:
   level:
     root: INFO
