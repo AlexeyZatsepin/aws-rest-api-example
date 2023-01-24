@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  Generator: "former2"
+Description: ""
+Resources:
+  CodeCommitRepository:
+    Type: "AWS::CodeCommit::Repository"
+    Properties:
+      RepositoryName: "tui-test-task-api"
+
+  CodeBuildProject:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Name: "tui-task-api-build"
+      Source:
+        GitCloneDepth: 1
+        GitSubmodulesConfig:
+          FetchSubmodules: false
+        InsecureSsl: false
+        Location: !GetAtt CodeCommitRepository.CloneUrlHttp
+        Type: "CODECOMMIT"
+      Artifacts:
+        Type: "NO_ARTIFACTS"
+      Cache:
+        Modes:
+          - "LOCAL_DOCKER_LAYER_CACHE"
+          - "LOCAL_SOURCE_CACHE"
+          - "LOCAL_CUSTOM_CACHE"
+        Type: "LOCAL"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/standard:6.0"
+        ImagePullCredentialsType: "CODEBUILD"
+        PrivilegedMode: true
+        Type: "LINUX_CONTAINER"
+      ServiceRole: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/codebuild-tui-task-api-build-service-role"
+      TimeoutInMinutes: 60
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/aws/s3"
+      BadgeEnabled: true
+      LogsConfig:
+        CloudWatchLogs:
+          Status: "ENABLED"
+          GroupName: "tui-task-api-build"
+        S3Logs:
+          Status: "DISABLED"
+          EncryptionDisabled: false
+      Visibility: "PRIVATE"
+
+  CodePipelinePipeline:
+    Type: "AWS::CodePipeline::Pipeline"
+    Properties:
+      Name: !GetAtt CodeCommitRepository.Name
+      RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSCodePipelineServiceRole-${AWS::Region}-${CodeCommitRepository.Name}"
+      ArtifactStore:
+        Location: !Sub "codepipeline-${AWS::Region}-370600810515"
+        Type: "S3"
+      Stages:
+        -
+          Name: "Source"
+          Actions:
+            -
+              Name: "Source"
+              ActionTypeId:
+                Category: "Source"
+                Owner: "AWS"
+                Provider: "CodeCommit"
+                Version: "1"
+              Configuration:
+                BranchName: "main"
+                OutputArtifactFormat: "CODE_ZIP"
+                PollForSourceChanges: "false"
+                RepositoryName: !GetAtt CodeCommitRepository.Name
+              OutputArtifacts:
+                -
+                  Name: "SourceArtifact"
+              Region: !Ref AWS::Region
+              Namespace: "SourceVariables"
+              RunOrder: 1
+        -
+          Name: "Build"
+          Actions:
+            -
+              Name: "Build"
+              ActionTypeId:
+                Category: "Build"
+                Owner: "AWS"
+                Provider: "CodeBuild"
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                -
+                  Name: "SourceArtifact"
+              OutputArtifacts:
+                -
+                  Name: "BuildArtifact"
+              Region: !Ref AWS::Region
+              Namespace: "BuildVariables"
+              RunOrder: 1
+
