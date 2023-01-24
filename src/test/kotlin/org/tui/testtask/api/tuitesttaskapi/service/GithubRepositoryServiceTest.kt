@@ -105,6 +105,47 @@ class GithubRepositoryServiceTest {
     }
 
     @Test
+    fun `should include forked repositories depends on property`() {
+        val branchesResponse1 = BranchesResponse(
+            name="main",
+            commit = Commit(
+                sha = "12345"
+            )
+        )
+        val repositoryResponse1 = RepositoryResponse(
+            name = "test-repo1",
+            owner = Owner(
+                login = "username"
+            ),
+            fork = true
+        )
+        whenever(githubClient.getAllRepositories(USERNAME))
+            .thenReturn(TestPublisher.createCold<RepositoryResponse>()
+                .emit(repositoryResponse1)
+                .flux())
+
+        whenever(dataGenerator.generateDataFlux(any(), any()))
+            .thenReturn(TestPublisher.createCold<BranchesResponse>()
+                .emit(branchesResponse1)
+                .flux())
+
+        whenever(mapper.map(repositoryResponse1, listOf(branchesResponse1)))
+            .thenReturn(Repository(name = "test-repo1", owner = "username", branches = listOf(Branch())))
+
+        StepVerifier
+            .create(service.retrieveRepositories(USERNAME, true, 1, 30))
+            .expectSubscription()
+            .assertNext {
+                assertThat(it.name).isEqualTo("test-repo1")
+                assertThat(it.owner).isEqualTo("username")
+                assertThat(it.branches).hasSize(1)
+            }
+            .expectComplete()
+            .verify()
+
+    }
+
+    @Test
     fun `should not handle not found exception from API`() {
         whenever(githubClient.getAllRepositories(USERNAME))
             .thenReturn(TestPublisher.createCold<RepositoryResponse>()
