@@ -1,15 +1,20 @@
 ### correct request
-GET http://{{service_link}}:8080/v1/repos/{{username}}
+GET http://{{service_link}}:8080/v1/user/{{username}}/repos
 Accept: application/json
 Authorization: Bearer {{cognito_token}}
 
 ### correct request page1
-GET http://{{service_link}}:8080/v1/repos/{{username}}?page=1&size=5
+GET http://{{service_link}}:8080/v1/user/{{username}}/repos?page=1&size=5
 Accept: application/json
 Authorization: Bearer {{cognito_token}}
 
 ### correct request page2
-GET http://{{service_link}}:8080/v1/repos/{{username}}?page=2&size=5
+GET http://{{service_link}}:8080/v1/user/{{username}}/repos?page=2&size=5
+Accept: application/json
+Authorization: Bearer {{cognito_token}}
+
+### wrong param
+GET http://{{service_link}}:8080/v1/user/{{username}}/repos?page=2&size=-5
 Accept: application/json
 Authorization: Bearer {{cognito_token}}
 
@@ -18,13 +23,13 @@ GET http://{{service_link}}:8080/actuator/health
 
 
 ### wrong header
-GET http://{{service_link}}:8080/v1/repos/{{username}}
+GET http://{{service_link}}:8080/v1/user/{{username}}/repos
 Accept: application/xml
 Authorization: Bearer {{cognito_token}}
 
 
 ### not existing repository
-GET http://{{service_link}}:8080/v1/repos/lala110203?page=0&size=20
+GET http://{{service_link}}:8080/v1/user/lala110203/repos?page=1&size=20
 Accept: application/json
 Authorization: Bearer {{cognito_token}}
 
