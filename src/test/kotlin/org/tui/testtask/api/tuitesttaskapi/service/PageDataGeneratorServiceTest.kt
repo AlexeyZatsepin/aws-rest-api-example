@@ -26,7 +26,7 @@ class PageDataGeneratorServiceTest {
         map[2] = page2
         map[3] = page3
 
-        var flux = generator.generateDataFlux("test") {
+        val flux = generator.generateDataFlux("test") {
             _, page -> map[page.get()]!!
         }
 

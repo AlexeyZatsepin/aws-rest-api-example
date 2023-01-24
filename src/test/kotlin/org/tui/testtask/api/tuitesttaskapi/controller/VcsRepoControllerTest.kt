@@ -1,35 +1,36 @@
 package org.tui.testtask.api.tuitesttaskapi.controller
 
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.tui.testtask.api.tuitesttaskapi.error.GithubResourceNotFoundException
 import org.tui.testtask.api.tuitesttaskapi.model.Branch
 import org.tui.testtask.api.tuitesttaskapi.model.Repository
-import org.tui.testtask.api.tuitesttaskapi.service.GithubRetrieveService
+import org.tui.testtask.api.tuitesttaskapi.security.WebSecurityConfig
+import org.tui.testtask.api.tuitesttaskapi.service.GithubRepositoryService
 import reactor.test.publisher.TestPublisher
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+private const val TEST_URL = "/v1/user/test/repos"
+
+@WebFluxTest(controllers = [VcsRepoController::class])
+@Import(WebSecurityConfig::class)
 class VcsRepoControllerTest {
 
     @Autowired
     lateinit var client: WebTestClient
 
     @MockBean
-    lateinit var service: GithubRetrieveService
+    lateinit var service: GithubRepositoryService
 
     @Test
     fun whenRequestRepository_thenStatusShouldBeOk() {
-        Mockito.`when`(service.retrieveRepositories("gyroflow", 1, 30))
+        whenever(service.retrieveRepositories("test", false, 1, 30))
             .thenReturn(
                 TestPublisher.createCold<Repository>()
                     .emit(
@@ -41,9 +42,8 @@ class VcsRepoControllerTest {
                     )
                     .flux()
             )
-
         client.get()
-            .uri("/v1/repos/gyroflow")
+            .uri(TEST_URL)
             .header(HttpHeaders.AUTHORIZATION, "Bearer test")
             .exchange()
             .expectStatus().isOk
@@ -52,28 +52,67 @@ class VcsRepoControllerTest {
     }
 
     @Test
+    fun whenRequestRepositoryWithNegativeSize_thenStatusShouldBe400() {
+        client.get()
+            .uri("$TEST_URL?size=-100")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+            .exchange()
+            .expectStatus().is4xxClientError
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .jsonPath("$.status").isEqualTo("400")
+            .jsonPath("$.message").isEqualTo("getAllRepositories.size: must be greater than 0")
+    }
+
+    @Test
+    fun whenRequestRepositoryWithWrongSize_thenStatusShouldBe400() {
+        client.get()
+            .uri("$TEST_URL?size=500")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+            .exchange()
+            .expectStatus().is4xxClientError
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .jsonPath("$.status").isEqualTo("400")
+            .jsonPath("$.message").isEqualTo("getAllRepositories.size: must be less than or equal to 100")
+    }
+
+    @Test
+    fun whenRequestRepositoryWithNegativePage_thenStatusShouldBe400() {
+        client.get()
+            .uri("$TEST_URL?page=-100")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+            .exchange()
+            .expectStatus().is4xxClientError
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .jsonPath("$.status").isEqualTo("400")
+            .jsonPath("$.message").isEqualTo("getAllRepositories.page: must be greater than 0")
+    }
+
+    @Test
     fun whenRequestWrongRepository_thenStatusShouldBe404() {
-        Mockito.`when`(service.retrieveRepositories("gyroflow", 1, 30))
+        whenever(service.retrieveRepositories("test", false, 1, 30))
             .thenReturn(
                 TestPublisher.createCold<Repository>()
-                    .error(GithubResourceNotFoundException("Repository gyroflow not found"))
+                    .error(GithubResourceNotFoundException("Repository test not found"))
                     .flux()
             )
 
         client.get()
-            .uri("/v1/repos/gyroflow")
+            .uri(TEST_URL)
             .exchange()
             .expectStatus().isNotFound
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
             .expectBody()
             .jsonPath("$.status").isEqualTo("404")
-            .jsonPath("$.message").isEqualTo("Repository gyroflow not found")
+            .jsonPath("$.message").isEqualTo("Repository test not found")
     }
 
     @Test
     fun whenHeaderIsWrong_thenStatusShouldBe406() {
         client.get()
-            .uri("/v1/repos/gyroflow")
+            .uri(TEST_URL)
             .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
             .exchange()
             .expectStatus().is4xxClientError
@@ -81,18 +120,6 @@ class VcsRepoControllerTest {
             .expectBody()
             .jsonPath("$.status").isEqualTo("406")
             .jsonPath("$.message").isEqualTo("Could not find acceptable representation")
-    }
-
-    @TestConfiguration
-    class TestSecurityConfiguration {
-        @Bean
-        fun springSecurityFilterChain(
-            http: ServerHttpSecurity
-        ): SecurityWebFilterChain {
-            http.authorizeExchange()
-                .pathMatchers("/**").permitAll()
-            return http.build()
-        }
     }
 
 }

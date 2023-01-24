@@ -18,7 +18,7 @@ GET http://{{service_link}}:8080/actuator/health
 
 
 ### wrong header
-GET http://{{service_link}}:8080/v1/repos/{{username}}?page=0&size=20
+GET http://{{service_link}}:8080/v1/repos/{{username}}
 Accept: application/xml
 Authorization: Bearer {{cognito_token}}
 

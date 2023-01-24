@@ -2,14 +2,20 @@ package org.tui.testtask.api.tuitesttaskapi.client
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
+import org.tui.testtask.api.tuitesttaskapi.client.dto.BranchesResponse
+import org.tui.testtask.api.tuitesttaskapi.client.dto.RepositoryResponse
 import org.tui.testtask.api.tuitesttaskapi.error.GithubResourceNotFoundException
 import org.tui.testtask.api.tuitesttaskapi.error.ServiceNotAvailableException
-import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
-import org.tui.testtask.api.tuitesttaskapi.model.dto.RepositoryResponse
 import reactor.core.publisher.Mono
 
 private const val DEFAULT_PAGE_SIZE = 30
 private const val DEFAULT_PAGE_NUM = 1
+
+private const val PAGE = "page"
+
+private const val PER_PAGE = "per_page"
+
+private const val DIRECTION = "direction"
 
 class GithubClient(private val webClient: WebClient) {
 
@@ -21,9 +27,9 @@ class GithubClient(private val webClient: WebClient) {
         .uri { builder ->
             builder
                 .path("/users/{username}/repos")
-                .queryParam("page", page)
-                .queryParam("per_page", perPage)
-                .queryParam("direction", direction)
+                .queryParam(PAGE, page)
+                .queryParam(PER_PAGE, perPage)
+                .queryParam(DIRECTION, direction)
                 .build(username)
         }
         .retrieve()
@@ -45,8 +51,8 @@ class GithubClient(private val webClient: WebClient) {
         .uri { builder ->
             builder
                 .path("/repos/{username}/{repo}/branches")
-                .queryParam("page", page)
-                .queryParam("per_page", perPage)
+                .queryParam(PAGE, page)
+                .queryParam(PER_PAGE, perPage)
                 .build(username, repo)
         }
         .retrieve()

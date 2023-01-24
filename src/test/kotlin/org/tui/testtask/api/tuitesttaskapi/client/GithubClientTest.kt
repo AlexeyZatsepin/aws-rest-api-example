@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
+import org.tui.testtask.api.tuitesttaskapi.client.dto.BranchesResponse
+import org.tui.testtask.api.tuitesttaskapi.client.dto.RepositoryResponse
 import org.tui.testtask.api.tuitesttaskapi.error.ServiceNotAvailableException
-import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
-import org.tui.testtask.api.tuitesttaskapi.model.dto.RepositoryResponse
 import reactor.test.StepVerifier
 import java.io.IOException
 

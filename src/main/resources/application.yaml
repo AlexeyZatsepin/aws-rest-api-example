@@ -1,6 +1,7 @@
 vcs:
   type: github
   url: api.github.com
+  protocol: https
 
 security:
   use-cognito-token: false

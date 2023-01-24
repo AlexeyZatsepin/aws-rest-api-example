@@ -1,44 +1,40 @@
 package org.tui.testtask.api.tuitesttaskapi.service
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.whenever
 import org.tui.testtask.api.tuitesttaskapi.client.GithubClient
+import org.tui.testtask.api.tuitesttaskapi.client.dto.BranchesResponse
+import org.tui.testtask.api.tuitesttaskapi.client.dto.Commit
+import org.tui.testtask.api.tuitesttaskapi.client.dto.Owner
+import org.tui.testtask.api.tuitesttaskapi.client.dto.RepositoryResponse
 import org.tui.testtask.api.tuitesttaskapi.error.GithubResourceNotFoundException
 import org.tui.testtask.api.tuitesttaskapi.error.ServiceNotAvailableException
 import org.tui.testtask.api.tuitesttaskapi.mapping.RepositoryMapper
 import org.tui.testtask.api.tuitesttaskapi.model.Branch
 import org.tui.testtask.api.tuitesttaskapi.model.Repository
-import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
-import org.tui.testtask.api.tuitesttaskapi.model.dto.Commit
-import org.tui.testtask.api.tuitesttaskapi.model.dto.Owner
-import org.tui.testtask.api.tuitesttaskapi.model.dto.RepositoryResponse
 import reactor.test.StepVerifier
 import reactor.test.publisher.TestPublisher
 
 
-private const val ORGANIZATION = "test"
+private const val USERNAME = "test"
 
 @ExtendWith(MockitoExtension::class)
-class GithubRetrieveServiceTest {
+class GithubRepositoryServiceTest {
     @Mock
     private lateinit var githubClient: GithubClient
     @Mock
     private lateinit var mapper: RepositoryMapper
     @Mock
-    private lateinit var dataGenerator: PageDataGeneratorService<Pair<String,String>,BranchesResponse>
+    private lateinit var dataGenerator: PageDataGeneratorService<Pair<String,String>, BranchesResponse>
 
-    private lateinit var service: GithubRetrieveService
-
-
-    @BeforeEach
-    fun init() {
-        service = GithubRetrieveService(githubClient, mapper, dataGenerator)
-    }
+    @InjectMocks
+    private lateinit var service: GithubRepositoryService
 
     @Test
     fun `should retrieve github repositories for organization`() {
@@ -61,22 +57,22 @@ class GithubRetrieveServiceTest {
             ),
             fork = false
         )
-        `when`(githubClient.getAllRepositories(ORGANIZATION))
+        whenever(githubClient.getAllRepositories(USERNAME))
             .thenReturn(TestPublisher.createCold<RepositoryResponse>()
                 .emit(repositoryResponse1)
                 .flux())
 
-        `when`(dataGenerator.generateDataFlux(any(), any()))
+        whenever(dataGenerator.generateDataFlux(any(), any()))
             .thenReturn(TestPublisher.createCold<BranchesResponse>()
                 .emit(branchesResponse1)
                 .emit(branchesResponse2)
                 .flux())
 
-        `when`(mapper.map(repositoryResponse1, listOf(branchesResponse1, branchesResponse2)))
+        whenever(mapper.map(repositoryResponse1, listOf(branchesResponse1, branchesResponse2)))
             .thenReturn(Repository(name = "test-repo1", owner = "username", branches = listOf(Branch(), Branch())))
 
         StepVerifier
-            .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
+            .create(service.retrieveRepositories(USERNAME, false, 1, 30))
             .expectSubscription()
             .assertNext {
                 assertThat(it.name).isEqualTo("test-repo1")
@@ -96,13 +92,13 @@ class GithubRetrieveServiceTest {
             ),
             fork = true
         )
-        `when`(githubClient.getAllRepositories(ORGANIZATION))
+        whenever(githubClient.getAllRepositories(USERNAME))
             .thenReturn(TestPublisher.createCold<RepositoryResponse>()
                 .emit(repositoryResponse1)
                 .flux())
 
         StepVerifier
-            .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
+            .create(service.retrieveRepositories(USERNAME, false,1, 30))
             .expectSubscription()
             .expectComplete()
             .verify()
@@ -110,24 +106,24 @@ class GithubRetrieveServiceTest {
 
     @Test
     fun `should not handle not found exception from API`() {
-        `when`(githubClient.getAllRepositories(ORGANIZATION))
+        whenever(githubClient.getAllRepositories(USERNAME))
             .thenReturn(TestPublisher.createCold<RepositoryResponse>()
                 .error(GithubResourceNotFoundException("")).flux())
 
         StepVerifier
-            .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
+            .create(service.retrieveRepositories(USERNAME, false, 1, 30))
             .expectError()
             .verify()
     }
 
     @Test
     fun `should not handle server exception from API`() {
-        `when`(githubClient.getAllRepositories(ORGANIZATION))
+        whenever(githubClient.getAllRepositories(USERNAME))
             .thenReturn(TestPublisher.createCold<RepositoryResponse>()
                 .error(ServiceNotAvailableException()).flux())
 
         StepVerifier
-            .create(service.retrieveRepositories(ORGANIZATION, 1, 30))
+            .create(service.retrieveRepositories(USERNAME, false, 1, 30))
             .expectError()
             .verify()
     }

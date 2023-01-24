@@ -4,10 +4,10 @@ import org.mapstruct.Builder
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.ReportingPolicy
+import org.tui.testtask.api.tuitesttaskapi.client.dto.BranchesResponse
+import org.tui.testtask.api.tuitesttaskapi.client.dto.RepositoryResponse
 import org.tui.testtask.api.tuitesttaskapi.model.Branch
 import org.tui.testtask.api.tuitesttaskapi.model.Repository
-import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
-import org.tui.testtask.api.tuitesttaskapi.model.dto.RepositoryResponse
 
 @Mapper(
     componentModel = "spring",

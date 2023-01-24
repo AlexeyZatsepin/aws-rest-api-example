@@ -1,6 +1,7 @@
 vcs:
   type: github
-  url: api.github.com
+  url: localhost:80
+  protocol: http
   access_token: sometoken
 
 security:
@@ -11,8 +12,6 @@ logging:
     root: INFO
 
 spring:
-  profiles:
-    active: test
   security:
     oauth2:
       resourceserver:

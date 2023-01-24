@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.mapstruct.factory.Mappers
-import org.tui.testtask.api.tuitesttaskapi.model.dto.BranchesResponse
-import org.tui.testtask.api.tuitesttaskapi.model.dto.Commit
-import org.tui.testtask.api.tuitesttaskapi.model.dto.Owner
-import org.tui.testtask.api.tuitesttaskapi.model.dto.RepositoryResponse
+import org.tui.testtask.api.tuitesttaskapi.client.dto.BranchesResponse
+import org.tui.testtask.api.tuitesttaskapi.client.dto.Commit
+import org.tui.testtask.api.tuitesttaskapi.client.dto.Owner
+import org.tui.testtask.api.tuitesttaskapi.client.dto.RepositoryResponse
 
 class RepositoryMapperTest {
     private val mapper = Mappers.getMapper(RepositoryMapper::class.java)
