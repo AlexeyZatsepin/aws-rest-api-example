@@ -16,7 +16,7 @@ The following repo contains test api example for VCS (GitHub)
 
 
 ## REST Endpoints 
-> GET http://localhost:8080/v1/repos/{{username}}
+> GET http://localhost:8080/v1/user/{username}/repos
 
 
 ## License
